@@ -259,6 +259,105 @@ footer{
   .stamp-mark{ animation:none; opacity:0.92; transform:rotate(-4deg) scale(1); }
   *{ transition:none !important; }
 }
+
+/* ---------- EDITOR ---------- */
+.editor-shell{
+  max-width:1080px; margin:0 auto;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#fff;
+  box-shadow: 6px 6px 0 rgba(33,29,23,0.06);
+  overflow:hidden;
+  display:none;
+}
+.editor-shell.active{ display:block; }
+
+.ribbon{
+  background:var(--paper-dim);
+  border-bottom:1px solid var(--line);
+  padding:10px 14px;
+  display:flex; flex-wrap:wrap; align-items:center; gap:14px;
+}
+.ribbon-group{
+  display:flex; align-items:center; gap:6px;
+  padding-right:14px; border-right:1px solid var(--line);
+}
+.ribbon-group:last-child{ border-right:none; }
+.ribbon-group .glabel{
+  font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase;
+  color:var(--muted); letter-spacing:0.06em; margin-right:4px;
+}
+.tool-btn{
+  border:1.5px solid transparent; background:transparent; color:var(--ink);
+  width:34px; height:34px; border-radius:var(--radius); cursor:pointer;
+  font-size:15px; display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Sans', sans-serif;
+}
+.tool-btn:hover{ border-color:var(--line); background:#fff; }
+.tool-btn.active{ background:var(--stamp); color:#fff; border-color:var(--stamp); }
+.tool-btn.wide{ width:auto; padding:0 12px; font-size:13px; font-weight:600; gap:6px; }
+input[type=color].swatch{
+  width:30px; height:30px; padding:0; border:1.5px solid var(--ink); border-radius:var(--radius); cursor:pointer; background:none;
+}
+.zoom-label{ font-family:'IBM Plex Mono', monospace; font-size:12px; width:44px; text-align:center; }
+
+.editor-body{ display:flex; }
+.thumb-rail{
+  width:120px; flex-shrink:0; background:var(--paper); border-right:1px solid var(--line);
+  padding:14px 10px; display:flex; flex-direction:column; gap:10px;
+  max-height:640px; overflow-y:auto;
+}
+.epage-thumb{
+  border:2px solid transparent; border-radius:var(--radius); cursor:pointer; overflow:hidden;
+  background:#eee;
+}
+.epage-thumb.active{ border-color:var(--stamp); }
+.epage-thumb img{ width:100%; display:block; }
+.epage-thumb .tnum{ font-family:'IBM Plex Mono', monospace; font-size:10px; text-align:center; padding:2px 0; color:var(--muted); }
+
+.editor-viewport{
+  flex:1; background:#DED2AE; padding:26px; display:flex; justify-content:center;
+  overflow:auto; max-height:640px;
+}
+.page-stage{
+  position:relative; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.18); flex-shrink:0;
+}
+.page-stage canvas{ position:absolute; top:0; left:0; }
+.overlay-layer{ position:absolute; top:0; left:0; }
+
+.etext-box{
+  position:absolute; min-width:40px; min-height:20px; padding:2px 4px;
+  outline:1px dashed transparent; cursor:move; line-height:1.3;
+  font-family:'IBM Plex Sans', sans-serif; color:#111; font-size:16px;
+}
+.etext-box:hover, .etext-box.esel{ outline-color:var(--kraft); }
+.etext-box[contenteditable="true"]:focus{ outline:1.5px solid var(--stamp); cursor:text; }
+
+.eimg-wrap{ position:absolute; cursor:move; }
+.eimg-wrap img{ width:100%; height:100%; display:block; pointer-events:none; }
+.eimg-wrap .rhandle{
+  position:absolute; right:-6px; bottom:-6px; width:12px; height:12px;
+  background:var(--stamp); border-radius:50%; cursor:nwse-resize;
+}
+.eimg-wrap.esel{ outline:1.5px dashed var(--kraft); }
+
+.mini-toolbar{
+  position:absolute; display:none; gap:4px; align-items:center;
+  background:var(--ink); padding:5px 6px; border-radius:4px; z-index:40;
+  box-shadow:0 3px 8px rgba(0,0,0,0.25);
+}
+.mini-toolbar button, .mini-toolbar .mt-size{
+  background:none; border:none; color:var(--paper); cursor:pointer; font-size:13px;
+  width:26px; height:26px; border-radius:3px; display:flex; align-items:center; justify-content:center;
+}
+.mini-toolbar button.on{ background:var(--stamp); }
+.mini-toolbar input[type=number]{
+  width:38px; background:transparent; color:var(--paper); border:1px solid #565046; border-radius:3px;
+  font-family:'IBM Plex Mono', monospace; font-size:12px; text-align:center;
+}
+.mini-toolbar input[type=color]{ width:22px; height:22px; padding:0; border:none; background:none; }
+
+.editor-hint{ padding:10px 16px; font-size:12px; color:var(--muted); font-family:'IBM Plex Mono', monospace; border-top:1px solid var(--line); background:var(--paper); }
 </style>
 </head>
 <body>
@@ -268,6 +367,7 @@ footer{
   <nav class="site">
     <a href="#extract">Split &amp; Extract</a>
     <a href="#compress">Bulk Compress</a>
+    <a href="#edit">Edit PDF</a>
     <a href="#privacy">Privacy</a>
   </nav>
 </header>
@@ -339,6 +439,75 @@ footer{
     <div class="file-list" id="compress-list"></div>
     <div class="empty-hint" id="compress-empty">No files loaded yet.</div>
   </div>
+</section>
+
+<section id="edit">
+  <div class="section-head">
+    <div class="eyebrow">03 — Edit PDF</div>
+    <h2>Mark it up like a document, not a picture.</h2>
+    <p>Load a PDF and get a Word-style ribbon: add text, images, shapes, highlights and freehand notes directly onto the page, then save a new PDF with your changes baked in. Note: this overlays edits on top of the page rather than reflowing the original text — the safest way to edit a PDF without a copy leaving your browser.</p>
+  </div>
+
+  <div class="folder-card">
+    <div class="dropzone" id="dropzone-edit">
+      <div class="tab">Working Copy</div>
+      <strong>Drop a PDF here to start editing</strong>
+      <span class="hint">One document at a time — this becomes your live working copy.</span>
+      <input type="file" id="file-input-edit" accept="application/pdf">
+    </div>
+  </div>
+
+  <div class="editor-shell" id="editor-shell">
+    <div class="ribbon">
+      <div class="ribbon-group">
+        <span class="glabel">Insert</span>
+        <button class="tool-btn" data-tool="select" title="Select / Move">↖</button>
+        <button class="tool-btn" data-tool="text" title="Add text box">T</button>
+        <button class="tool-btn" data-tool="image" title="Insert image">🖼</button>
+      </div>
+      <div class="ribbon-group">
+        <span class="glabel">Text layer</span>
+        <button class="tool-btn wide" id="unlock-text-btn" title="Convert this page's original text into editable boxes">Unlock Text</button>
+      </div>
+      <div class="ribbon-group">
+        <span class="glabel">Mark up</span>
+        <button class="tool-btn" data-tool="highlight" title="Highlight">▮</button>
+        <button class="tool-btn" data-tool="pen" title="Draw / pen">✎</button>
+        <button class="tool-btn" data-tool="rect" title="Rectangle">▭</button>
+        <button class="tool-btn" data-tool="line" title="Line">╱</button>
+        <button class="tool-btn" data-tool="whiteout" title="Whiteout / cover">▉</button>
+      </div>
+      <div class="ribbon-group">
+        <span class="glabel">Color</span>
+        <input type="color" id="draw-color" class="swatch" value="#B23328">
+      </div>
+      <div class="ribbon-group">
+        <span class="glabel">View</span>
+        <button class="tool-btn" id="zoom-out">−</button>
+        <span class="zoom-label" id="zoom-label">100%</span>
+        <button class="tool-btn" id="zoom-in">+</button>
+      </div>
+      <div class="ribbon-group">
+        <span class="glabel">Edit</span>
+        <button class="tool-btn" id="undo-btn" title="Undo">↺</button>
+        <button class="tool-btn" id="redo-btn" title="Redo">↻</button>
+        <button class="tool-btn" id="delete-el-btn" title="Delete selected">🗑</button>
+      </div>
+      <div class="ribbon-group" style="margin-left:auto; border-right:none;">
+        <button class="tool-btn wide" id="save-edit-btn">Save Edited PDF</button>
+      </div>
+    </div>
+
+    <div class="editor-body">
+      <div class="thumb-rail" id="editor-thumbs"></div>
+      <div class="editor-viewport" id="editor-viewport">
+        <!-- page-stage elements injected here -->
+      </div>
+    </div>
+    <div class="editor-hint" id="editor-hint">Opening a page automatically unlocks its text into editable boxes (best-effort — original font is approximated). Text tool: click the page, type, then drag its top edge to move it. Image / shape tools: click-drag on the page to place. Everything here stays in this browser tab.</div>
+  </div>
+
+  <input type="file" id="image-insert-input" accept="image/*" style="display:none;">
 </section>
 
 <section id="privacy">
@@ -677,6 +846,648 @@ zipBtn.addEventListener('click', async () => {
   const blob = await zip.generateAsync({ type: 'blob' });
   downloadBlob(blob, 'compressed-pdfs.zip');
 });
+
+/* ===================== EDIT PDF (Word-style) ===================== */
+const editor = {
+  arrayBuffer: null,
+  fileName: 'document.pdf',
+  pdfjsDoc: null,
+  numPages: 0,
+  currentPage: 1,
+  zoom: 1,
+  pages: {},      // pageNum -> { widthPts, heightPts, cssW, cssH, baseCanvas, annoCanvas, overlayEl, drawings: [] }
+  elements: [],   // {id, page, type:'text'|'image', ...}
+  tool: 'select',
+  selectedElId: null,
+  history: [],
+  future: [],
+};
+
+const dzEdit = document.getElementById('dropzone-edit');
+const inputEdit = document.getElementById('file-input-edit');
+wireDropzone(dzEdit, inputEdit, files => { if (files[0]) loadEditorFile(files[0]); });
+
+const editorShell = document.getElementById('editor-shell');
+const editorViewport = document.getElementById('editor-viewport');
+const editorThumbs = document.getElementById('editor-thumbs');
+const imageInsertInput = document.getElementById('image-insert-input');
+
+async function loadEditorFile(file){
+  editor.arrayBuffer = await file.arrayBuffer();
+  editor.fileName = file.name;
+  editor.pdfjsDoc = await pdfjsLib.getDocument({ data: editor.arrayBuffer.slice(0) }).promise;
+  editor.numPages = editor.pdfjsDoc.numPages;
+  editor.pages = {};
+  editor.elements = [];
+  editor.currentPage = 1;
+  editor.history = [];
+  editor.future = [];
+
+  editorShell.classList.add('active');
+  await buildEditorThumbs();
+  await showEditorPage(1);
+}
+
+async function buildEditorThumbs(){
+  editorThumbs.innerHTML = '';
+  for (let p=1; p<=editor.numPages; p++){
+    const page = await editor.pdfjsDoc.getPage(p);
+    const vp = page.getViewport({ scale: 0.18 });
+    const c = document.createElement('canvas');
+    c.width = vp.width; c.height = vp.height;
+    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'epage-thumb' + (p===1 ? ' active' : '');
+    wrap.dataset.page = p;
+    const img = document.createElement('img');
+    img.src = c.toDataURL('image/png');
+    wrap.appendChild(img);
+    const label = document.createElement('div');
+    label.className = 'tnum'; label.textContent = 'Page ' + p;
+    wrap.appendChild(label);
+    wrap.addEventListener('click', () => showEditorPage(p));
+    editorThumbs.appendChild(wrap);
+  }
+}
+
+async function showEditorPage(pageNum){
+  editor.currentPage = pageNum;
+  editorThumbs.querySelectorAll('.epage-thumb').forEach(t => t.classList.toggle('active', Number(t.dataset.page) === pageNum));
+  editorViewport.innerHTML = '';
+
+  if (!editor.pages[pageNum]) await buildPageStage(pageNum);
+  const pg = editor.pages[pageNum];
+
+  pg.stage.style.width = (pg.cssW * editor.zoom) + 'px';
+  pg.stage.style.height = (pg.cssH * editor.zoom) + 'px';
+  pg.stage.style.transform = '';
+  [pg.baseCanvas, pg.annoCanvas, pg.overlayEl].forEach(el => {
+    el.style.width = '100%'; el.style.height = '100%';
+  });
+  editorViewport.appendChild(pg.stage);
+  deselectAll();
+}
+
+async function buildPageStage(pageNum){
+  const page = await editor.pdfjsDoc.getPage(pageNum);
+  const baseScale = 1.4; // fixed internal render resolution
+  const viewport = page.getViewport({ scale: baseScale });
+  const unscaled = page.getViewport({ scale: 1 });
+
+  const stage = document.createElement('div');
+  stage.className = 'page-stage';
+
+  const baseCanvas = document.createElement('canvas');
+  baseCanvas.width = viewport.width; baseCanvas.height = viewport.height;
+  await page.render({ canvasContext: baseCanvas.getContext('2d'), viewport }).promise;
+
+  const annoCanvas = document.createElement('canvas');
+  annoCanvas.width = viewport.width; annoCanvas.height = viewport.height;
+
+  const overlayEl = document.createElement('div');
+  overlayEl.className = 'overlay-layer';
+  overlayEl.style.width = viewport.width + 'px';
+  overlayEl.style.height = viewport.height + 'px';
+
+  stage.appendChild(baseCanvas);
+  stage.appendChild(annoCanvas);
+  stage.appendChild(overlayEl);
+
+  wireStageInteractions(stage, annoCanvas, overlayEl, pageNum);
+
+  editor.pages[pageNum] = {
+    widthPts: unscaled.width, heightPts: unscaled.height,
+    cssW: viewport.width, cssH: viewport.height,
+    stage, baseCanvas, annoCanvas, overlayEl,
+    drawings: [], // {type, color, ...} in canvas-pixel coords
+    textUnlocked: false,
+    renderScale: baseScale,
+  };
+
+  await convertPageTextToEditable(pageNum);
+}
+
+/* ---- Convert the PDF's own text into editable, draggable text boxes ---- */
+async function convertPageTextToEditable(pageNum, force){
+  const pg = editor.pages[pageNum];
+  if (!pg || (pg.textUnlocked && !force)) return;
+  if (force){
+    // remove previously extracted elements + their white masks for this page, then redo
+    editor.elements = editor.elements.filter(el => !(el.page === pageNum && el.extracted));
+    Array.from(pg.overlayEl.querySelectorAll('[data-extracted="1"]')).forEach(n => n.remove());
+    pg.drawings = pg.drawings.filter(d => !d.extractedMask);
+  }
+
+  const page = await editor.pdfjsDoc.getPage(pageNum);
+  const viewport = page.getViewport({ scale: pg.renderScale });
+  const textContent = await page.getTextContent();
+  const items = textContent.items;
+
+  const lines = [];
+  let cur = null;
+
+  for (const item of items){
+    if (!item.str || item.str.trim() === ''){
+      if (item.hasEOL) cur = null;
+      continue;
+    }
+    const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
+    const x = tx[4];
+    const yBase = tx[5];
+    const fontHeight = Math.hypot(tx[2], tx[3]) || (item.height * pg.renderScale) || 10;
+    const width = item.width * pg.renderScale;
+
+    if (cur && Math.abs(cur.yBase - yBase) < Math.max(2, fontHeight * 0.35)){
+      const gap = x - cur.maxX;
+      cur.text += (gap > fontHeight * 0.2 && !cur.text.endsWith(' ')) ? ' ' + item.str : item.str;
+      cur.maxX = Math.max(cur.maxX, x + width);
+      cur.minX = Math.min(cur.minX, x);
+      cur.fontHeight = Math.max(cur.fontHeight, fontHeight);
+    } else {
+      cur = { yBase, minX: x, maxX: x + width, text: item.str, fontHeight };
+      lines.push(cur);
+    }
+    if (item.hasEOL) cur = null;
+  }
+
+  for (const line of lines){
+    if (!line.text.trim()) continue;
+    const h = line.fontHeight * 1.25;
+    const top = line.yBase - line.fontHeight * 0.83;
+    const w = (line.maxX - line.minX) + 6;
+
+    pg.drawings.push({ type:'whiteout', x: line.minX - 2, y: top - 2, w: w, h: h + 4, color:'#ffffff', extractedMask:true });
+
+    const id = 'ex' + Date.now() + Math.random().toString(36).slice(2,6);
+    const el = {
+      id, page: pageNum, type:'text', extracted:true,
+      x: line.minX, y: top, width: w, text: line.text,
+      fontSize: Math.max(8, line.fontHeight * 0.92),
+      bold:false, italic:false, underline:false, color:'#111111'
+    };
+    editor.elements.push(el);
+    renderTextElement(el);
+  }
+
+  pg.textUnlocked = true;
+  redrawAnnoCanvas(pageNum);
+  pushHistory();
+}
+
+document.getElementById('unlock-text-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('unlock-text-btn');
+  btn.disabled = true; btn.textContent = 'Unlocking…';
+  try{
+    await convertPageTextToEditable(editor.currentPage, true);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Unlock Text';
+  }
+});
+
+function redrawAnnoCanvas(pageNum){
+  const pg = editor.pages[pageNum];
+  const ctx = pg.annoCanvas.getContext('2d');
+  ctx.clearRect(0,0,pg.annoCanvas.width, pg.annoCanvas.height);
+  for (const d of pg.drawings) drawShape(ctx, d);
+}
+
+function drawShape(ctx, d){
+  ctx.save();
+  if (d.type === 'rect'){
+    ctx.strokeStyle = d.color; ctx.lineWidth = 3;
+    ctx.strokeRect(d.x, d.y, d.w, d.h);
+  } else if (d.type === 'highlight'){
+    ctx.fillStyle = d.color; ctx.globalAlpha = 0.35;
+    ctx.fillRect(d.x, d.y, d.w, d.h);
+  } else if (d.type === 'whiteout'){
+    ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 1;
+    ctx.fillRect(d.x, d.y, d.w, d.h);
+  } else if (d.type === 'line'){
+    ctx.strokeStyle = d.color; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(d.x1,d.y1); ctx.lineTo(d.x2,d.y2); ctx.stroke();
+  } else if (d.type === 'pen'){
+    ctx.strokeStyle = d.color; ctx.lineWidth = 3; ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.beginPath();
+    d.points.forEach((pt,i) => i===0 ? ctx.moveTo(pt.x,pt.y) : ctx.lineTo(pt.x,pt.y));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function wireStageInteractions(stage, annoCanvas, overlayEl, pageNum){
+  let dragging = null; // {type:'draw'|'shape'|'text-move'|'img-move'|'img-resize', ...}
+
+  function stagePos(evt){
+    const rect = stage.getBoundingClientRect();
+    const scaleX = annoCanvas.width / rect.width;
+    const scaleY = annoCanvas.height / rect.height;
+    return { x: (evt.clientX - rect.left) * scaleX, y: (evt.clientY - rect.top) * scaleY };
+  }
+
+  stage.addEventListener('mousedown', (e) => {
+    if (e.target !== stage && e.target !== annoCanvas && e.target !== overlayEl) return; // let elements handle their own drags
+    const pos = stagePos(e);
+    const tool = editor.tool;
+    const color = document.getElementById('draw-color').value;
+
+    if (tool === 'text'){
+      addTextElement(pageNum, pos.x, pos.y);
+      setTool('select');
+      return;
+    }
+    if (tool === 'image'){
+      pendingImagePos = { page: pageNum, x: pos.x, y: pos.y };
+      imageInsertInput.click();
+      setTool('select');
+      return;
+    }
+    if (['rect','line','highlight','whiteout'].includes(tool)){
+      dragging = { type:'shape', shapeType: tool, x0:pos.x, y0:pos.y, color };
+      return;
+    }
+    if (tool === 'pen'){
+      dragging = { type:'pen', points:[pos], color };
+      return;
+    }
+    deselectAll();
+  });
+
+  stage.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const pos = stagePos(e);
+    const pg = editor.pages[pageNum];
+    if (dragging.type === 'shape'){
+      redrawAnnoCanvas(pageNum);
+      const ctx = annoCanvas.getContext('2d');
+      const x = Math.min(dragging.x0, pos.x), y = Math.min(dragging.y0, pos.y);
+      const w = Math.abs(pos.x - dragging.x0), h = Math.abs(pos.y - dragging.y0);
+      if (dragging.shapeType === 'line'){
+        drawShape(ctx, { type:'line', x1:dragging.x0, y1:dragging.y0, x2:pos.x, y2:pos.y, color:dragging.color });
+      } else {
+        drawShape(ctx, { type: dragging.shapeType, x, y, w, h, color: dragging.color });
+      }
+    } else if (dragging.type === 'pen'){
+      dragging.points.push(pos);
+      redrawAnnoCanvas(pageNum);
+      drawShape(annoCanvas.getContext('2d'), { type:'pen', points:dragging.points, color:dragging.color });
+    }
+  });
+
+  window.addEventListener('mouseup', (e) => {
+    if (!dragging) return;
+    const pg = editor.pages[pageNum];
+    if (dragging.type === 'shape'){
+      const pos = stagePos(e);
+      if (dragging.shapeType === 'line'){
+        pg.drawings.push({ type:'line', x1:dragging.x0, y1:dragging.y0, x2:pos.x, y2:pos.y, color:dragging.color });
+      } else {
+        const x = Math.min(dragging.x0, pos.x), y = Math.min(dragging.y0, pos.y);
+        const w = Math.abs(pos.x - dragging.x0), h = Math.abs(pos.y - dragging.y0);
+        if (w > 2 && h > 2) pg.drawings.push({ type: dragging.shapeType, x, y, w, h, color: dragging.color });
+      }
+      pushHistory();
+      redrawAnnoCanvas(pageNum);
+    } else if (dragging.type === 'pen'){
+      if (dragging.points.length > 1) pg.drawings.push({ type:'pen', points:dragging.points, color:dragging.color });
+      pushHistory();
+      redrawAnnoCanvas(pageNum);
+    }
+    dragging = null;
+  });
+}
+
+let pendingImagePos = null;
+imageInsertInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file || !pendingImagePos) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const w = Math.min(220, img.width);
+      const h = w * (img.height / img.width);
+      addImageElement(pendingImagePos.page, pendingImagePos.x - w/2, pendingImagePos.y - h/2, w, h, reader.result);
+      pendingImagePos = null;
+      imageInsertInput.value = '';
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function addTextElement(pageNum, x, y){
+  const id = 'el' + Date.now() + Math.random().toString(36).slice(2,6);
+  const el = { id, page: pageNum, type:'text', x, y, width:220, text:'Type here…', fontSize:18, bold:false, italic:false, underline:false, color:'#111111' };
+  editor.elements.push(el);
+  renderTextElement(el);
+  pushHistory();
+  setTimeout(() => { selectElement(id); el.domEl.focus(); document.execCommand('selectAll', false, null); }, 0);
+}
+
+function renderTextElement(el){
+  const pg = editor.pages[el.page];
+  const div = document.createElement('div');
+  div.className = 'etext-box';
+  div.contentEditable = 'true';
+  div.innerText = el.text;
+  div.style.left = el.x + 'px';
+  div.style.top = el.y + 'px';
+  div.style.width = el.width + 'px';
+  div.style.fontSize = el.fontSize + 'px';
+  div.style.fontWeight = el.bold ? '700' : '400';
+  div.style.fontStyle = el.italic ? 'italic' : 'normal';
+  div.style.textDecoration = el.underline ? 'underline' : 'none';
+  div.style.color = el.color;
+  div.dataset.id = el.id;
+  if (el.extracted) div.dataset.extracted = '1';
+  el.domEl = div;
+
+  div.addEventListener('input', () => { el.text = div.innerText; });
+  div.addEventListener('mousedown', (e) => { e.stopPropagation(); selectElement(el.id); });
+  makeDraggable(div, el, pg);
+  div.addEventListener('blur', () => pushHistory());
+
+  pg.overlayEl.appendChild(div);
+}
+
+function addImageElement(pageNum, x, y, w, h, dataUrl){
+  const id = 'el' + Date.now() + Math.random().toString(36).slice(2,6);
+  const el = { id, page: pageNum, type:'image', x, y, width:w, height:h, dataUrl };
+  editor.elements.push(el);
+  renderImageElement(el);
+  pushHistory();
+}
+
+function renderImageElement(el){
+  const pg = editor.pages[el.page];
+  const wrap = document.createElement('div');
+  wrap.className = 'eimg-wrap';
+  wrap.style.left = el.x + 'px';
+  wrap.style.top = el.y + 'px';
+  wrap.style.width = el.width + 'px';
+  wrap.style.height = el.height + 'px';
+  wrap.dataset.id = el.id;
+
+  const img = document.createElement('img');
+  img.src = el.dataUrl;
+  wrap.appendChild(img);
+
+  const handle = document.createElement('div');
+  handle.className = 'rhandle';
+  wrap.appendChild(handle);
+  el.domEl = wrap;
+
+  wrap.addEventListener('mousedown', (e) => { e.stopPropagation(); selectElement(el.id); });
+  makeDraggable(wrap, el, pg);
+  makeResizable(handle, wrap, el);
+
+  pg.overlayEl.appendChild(wrap);
+}
+
+function makeDraggable(domEl, el, pg){
+  let drag = null;
+  domEl.addEventListener('mousedown', (e) => {
+    if (el.type === 'text' && document.activeElement === domEl) return; // editing text, not moving
+    if (e.target.classList && e.target.classList.contains('rhandle')) return;
+    drag = { startX:e.clientX, startY:e.clientY, origX:el.x, origY:el.y };
+    e.stopPropagation();
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!drag) return;
+    const rect = pg.stage.getBoundingClientRect();
+    const scaleX = pg.annoCanvas.width / rect.width;
+    const scaleY = pg.annoCanvas.height / rect.height;
+    el.x = drag.origX + (e.clientX - drag.startX) * scaleX;
+    el.y = drag.origY + (e.clientY - drag.startY) * scaleY;
+    domEl.style.left = el.x + 'px';
+    domEl.style.top = el.y + 'px';
+  });
+  window.addEventListener('mouseup', () => { if (drag) { drag = null; pushHistory(); } });
+}
+
+function makeResizable(handle, wrap, el){
+  let rs = null;
+  handle.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    rs = { startX:e.clientX, startY:e.clientY, origW:el.width, origH:el.height };
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!rs) return;
+    const pg = editor.pages[el.page];
+    const rect = pg.stage.getBoundingClientRect();
+    const scale = pg.annoCanvas.width / rect.width;
+    el.width = Math.max(20, rs.origW + (e.clientX - rs.startX) * scale);
+    el.height = Math.max(20, rs.origH + (e.clientY - rs.startY) * scale);
+    wrap.style.width = el.width + 'px';
+    wrap.style.height = el.height + 'px';
+  });
+  window.addEventListener('mouseup', () => { if (rs) { rs = null; pushHistory(); } });
+}
+
+/* selection + mini text toolbar */
+const miniToolbar = document.createElement('div');
+miniToolbar.className = 'mini-toolbar';
+miniToolbar.innerHTML = `
+  <button data-cmd="bold"><b>B</b></button>
+  <button data-cmd="italic"><i>I</i></button>
+  <button data-cmd="underline"><u>U</u></button>
+  <input type="number" class="mt-size" value="18" min="8" max="72">
+  <input type="color" value="#111111">
+`;
+document.body.appendChild(miniToolbar);
+
+function selectElement(id){
+  deselectAll();
+  editor.selectedElId = id;
+  const el = editor.elements.find(x => x.id === id);
+  if (!el) return;
+  el.domEl.classList.add('esel');
+  if (el.type === 'text') positionMiniToolbar(el);
+}
+function deselectAll(){
+  editor.elements.forEach(el => el.domEl && el.domEl.classList.remove('esel'));
+  editor.selectedElId = null;
+  miniToolbar.style.display = 'none';
+}
+function positionMiniToolbar(el){
+  const rect = el.domEl.getBoundingClientRect();
+  miniToolbar.style.display = 'flex';
+  miniToolbar.style.left = (rect.left + window.scrollX) + 'px';
+  miniToolbar.style.top = (rect.top + window.scrollY - 38) + 'px';
+  miniToolbar.querySelector('[data-cmd="bold"]').classList.toggle('on', el.bold);
+  miniToolbar.querySelector('[data-cmd="italic"]').classList.toggle('on', el.italic);
+  miniToolbar.querySelector('[data-cmd="underline"]').classList.toggle('on', el.underline);
+  miniToolbar.querySelector('.mt-size').value = el.fontSize;
+  miniToolbar.querySelector('input[type=color]').value = el.color;
+}
+miniToolbar.addEventListener('mousedown', e => e.stopPropagation());
+miniToolbar.querySelectorAll('[data-cmd]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const el = editor.elements.find(x => x.id === editor.selectedElId);
+    if (!el) return;
+    const cmd = btn.dataset.cmd;
+    el[cmd] = !el[cmd];
+    applyTextStyle(el);
+    btn.classList.toggle('on', el[cmd]);
+  });
+});
+miniToolbar.querySelector('.mt-size').addEventListener('input', (e) => {
+  const el = editor.elements.find(x => x.id === editor.selectedElId);
+  if (!el) return;
+  el.fontSize = Number(e.target.value) || 18;
+  applyTextStyle(el);
+});
+miniToolbar.querySelector('input[type=color]').addEventListener('input', (e) => {
+  const el = editor.elements.find(x => x.id === editor.selectedElId);
+  if (!el) return;
+  el.color = e.target.value;
+  applyTextStyle(el);
+});
+function applyTextStyle(el){
+  el.domEl.style.fontWeight = el.bold ? '700' : '400';
+  el.domEl.style.fontStyle = el.italic ? 'italic' : 'normal';
+  el.domEl.style.textDecoration = el.underline ? 'underline' : 'none';
+  el.domEl.style.fontSize = el.fontSize + 'px';
+  el.domEl.style.color = el.color;
+}
+
+/* toolbar wiring */
+function setTool(tool){
+  editor.tool = tool;
+  document.querySelectorAll('.ribbon [data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
+}
+document.querySelectorAll('.ribbon [data-tool]').forEach(btn => btn.addEventListener('click', () => setTool(btn.dataset.tool)));
+setTool('select');
+
+document.getElementById('zoom-in').addEventListener('click', () => setZoom(editor.zoom + 0.1));
+document.getElementById('zoom-out').addEventListener('click', () => setZoom(editor.zoom - 0.1));
+function setZoom(z){
+  editor.zoom = Math.min(2, Math.max(0.5, z));
+  document.getElementById('zoom-label').textContent = Math.round(editor.zoom*100) + '%';
+  showEditorPage(editor.currentPage);
+}
+
+document.getElementById('delete-el-btn').addEventListener('click', () => {
+  if (!editor.selectedElId) return;
+  const idx = editor.elements.findIndex(x => x.id === editor.selectedElId);
+  if (idx === -1) return;
+  editor.elements[idx].domEl.remove();
+  editor.elements.splice(idx,1);
+  deselectAll();
+  pushHistory();
+});
+
+function pushHistory(){
+  editor.future = [];
+  const snap = JSON.stringify(editor.elements.map(({domEl, ...rest}) => rest));
+  const pageDrawings = {}; Object.keys(editor.pages).forEach(p => pageDrawings[p] = editor.pages[p].drawings);
+  editor.history.push({ els: snap, drawings: JSON.stringify(pageDrawings) });
+  if (editor.history.length > 40) editor.history.shift();
+}
+document.getElementById('undo-btn').addEventListener('click', () => {
+  if (editor.history.length < 2) return;
+  editor.future.push(editor.history.pop());
+  restoreSnapshot(editor.history[editor.history.length-1]);
+});
+document.getElementById('redo-btn').addEventListener('click', () => {
+  if (!editor.future.length) return;
+  const snap = editor.future.pop();
+  editor.history.push(snap);
+  restoreSnapshot(snap);
+});
+function restoreSnapshot(snap){
+  Object.values(editor.pages).forEach(pg => { pg.overlayEl.innerHTML=''; });
+  editor.elements = JSON.parse(snap.els);
+  const drawings = JSON.parse(snap.drawings);
+  Object.keys(drawings).forEach(p => { if (editor.pages[p]) editor.pages[p].drawings = drawings[p]; });
+  editor.elements.forEach(el => el.type === 'text' ? renderTextElement(el) : renderImageElement(el));
+  Object.keys(editor.pages).forEach(p => redrawAnnoCanvas(Number(p)));
+  deselectAll();
+}
+
+/* export / save flattened PDF */
+document.getElementById('save-edit-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('save-edit-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try{
+    const { PDFDocument, StandardFonts, rgb } = PDFLib;
+    const outDoc = await PDFDocument.load(editor.arrayBuffer.slice(0));
+    const fontRegular = await outDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await outDoc.embedFont(StandardFonts.HelveticaBold);
+    const fontItalic = await outDoc.embedFont(StandardFonts.HelveticaOblique);
+    const fontBoldItalic = await outDoc.embedFont(StandardFonts.HelveticaBoldOblique);
+
+    for (let p=1; p<=editor.numPages; p++){
+      const pg = editor.pages[p];
+      const pdfPage = outDoc.getPage(p-1);
+      if (!pg) continue; // page never opened/edited
+      const scale = pg.widthPts / pg.cssW; // pt per canvas-px
+
+      // committed shapes
+      for (const d of pg.drawings){
+        const col = hexToRgb(d.color);
+        if (d.type === 'rect'){
+          pdfPage.drawRectangle({ x:d.x*scale, y: pg.heightPts - (d.y+d.h)*scale, width:d.w*scale, height:d.h*scale,
+            borderColor: rgb(col.r,col.g,col.b), borderWidth:1.5 });
+        } else if (d.type === 'highlight'){
+          pdfPage.drawRectangle({ x:d.x*scale, y: pg.heightPts - (d.y+d.h)*scale, width:d.w*scale, height:d.h*scale,
+            color: rgb(col.r,col.g,col.b), opacity:0.35 });
+        } else if (d.type === 'whiteout'){
+          pdfPage.drawRectangle({ x:d.x*scale, y: pg.heightPts - (d.y+d.h)*scale, width:d.w*scale, height:d.h*scale,
+            color: rgb(1,1,1), opacity:1 });
+        } else if (d.type === 'line'){
+          pdfPage.drawLine({ start:{x:d.x1*scale, y:pg.heightPts-d.y1*scale}, end:{x:d.x2*scale, y:pg.heightPts-d.y2*scale},
+            thickness:1.5, color: rgb(col.r,col.g,col.b) });
+        } else if (d.type === 'pen'){
+          for (let i=1;i<d.points.length;i++){
+            const a=d.points[i-1], b=d.points[i];
+            pdfPage.drawLine({ start:{x:a.x*scale,y:pg.heightPts-a.y*scale}, end:{x:b.x*scale,y:pg.heightPts-b.y*scale},
+              thickness:1.5, color: rgb(col.r,col.g,col.b) });
+          }
+        }
+      }
+
+      // elements (text / images)
+      for (const el of editor.elements.filter(x => x.page === p)){
+        if (el.type === 'text'){
+          const font = el.bold && el.italic ? fontBoldItalic : el.bold ? fontBold : el.italic ? fontItalic : fontRegular;
+          const col = hexToRgb(el.color);
+          const size = el.fontSize * scale;
+          const lines = el.text.split('\n');
+          let y = pg.heightPts - el.y*scale - size;
+          for (const line of lines){
+            pdfPage.drawText(line, { x: el.x*scale, y, size, font, color: rgb(col.r,col.g,col.b) });
+            y -= size * 1.25;
+          }
+        } else if (el.type === 'image'){
+          const isPng = el.dataUrl.startsWith('data:image/png');
+          const bytes = dataUrlToUint8(el.dataUrl);
+          const img = isPng ? await outDoc.embedPng(bytes) : await outDoc.embedJpg(bytes);
+          pdfPage.drawImage(img, {
+            x: el.x*scale, y: pg.heightPts - (el.y+el.height)*scale,
+            width: el.width*scale, height: el.height*scale
+          });
+        }
+      }
+    }
+
+    const bytes = await outDoc.save();
+    downloadBlob(new Blob([bytes], {type:'application/pdf'}), editor.fileName.replace(/\.pdf$/i,'') + '-edited.pdf');
+    btn.textContent = 'Saved ✓';
+  } catch(err){
+    console.error(err);
+    alert('Could not save the edited PDF: ' + err.message);
+  } finally {
+    setTimeout(() => { btn.textContent = 'Save Edited PDF'; btn.disabled = false; }, 1600);
+  }
+});
+
+function hexToRgb(hex){
+  const h = hex.replace('#','');
+  const bigint = parseInt(h.length===3 ? h.split('').map(c=>c+c).join('') : h, 16);
+  return { r: ((bigint>>16)&255)/255, g: ((bigint>>8)&255)/255, b: (bigint&255)/255 };
+}
 </script>
 </body>
 </html>
