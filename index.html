@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDFFlow — Split, Extract & Compress PDFs </title>
+<title>PDF Flow — Split, Extract & Compress PDFs </title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Special+Elite&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
@@ -40,7 +40,7 @@ h1,h2,h3{ font-family:'Fraunces', serif; margin:0; letter-spacing:-0.01em; }
   font-family:'Special Elite', monospace;
   text-transform:uppercase;
   letter-spacing:0.14em;
-  font-size:12px;
+  font-size:30px;
   color:var(--stamp);
 }
 
@@ -356,14 +356,16 @@ input[type=color].swatch{
   font-family:'IBM Plex Mono', monospace; font-size:12px; text-align:center;
 }
 .mini-toolbar input[type=color]{ width:22px; height:22px; padding:0; border:none; background:none; }
+  .footer-publisher { text-align: right; } .footer-publisher p { margin: 0 0 5px; color: #8f9aae; font-size: 11px; } .footer-publisher strong { display: block; font-size: 13px; } .footer-publisher span { display: block; color: #8f9aae; font-size: 11px; margin-top: 6px; } .footer-bottom { max-width: 1400px; margin: 25px auto 0; padding-top: 16px; border-top: 1px solid #30394c; display: flex; justify-content: space-between; gap: 15px; color: #8f9aae; font-size: 11px; }
 
 .editor-hint{ padding:10px 16px; font-size:12px; color:var(--muted); font-family:'IBM Plex Mono', monospace; border-top:1px solid var(--line); background:var(--paper); }
+  @media (max-width: 800px) { .footer-content { grid-template-columns: 1fr; gap: 20px; } .footer-publisher { text-align: left; } .footer-bottom { flex-direction: column; } }
 </style>
 </head>
 <body>
 
 <header class="site">
-  <div class="brand"><span class="mark">§</span> Paper Vault</div>
+  <div class="brand"><span class="mark">§</span> PDF Flow</div>
   <nav class="site">
     <a href="#extract">Split &amp; Extract</a>
     <a href="#compress">Bulk Compress</a>
@@ -533,8 +535,9 @@ input[type=color].swatch{
     </div>
   </div>
 </section>
-
-<footer>Paper Vault — a local-only PDF workbench.</footer>
+<div class="footer-publisher"> <p>Published by</p> <strong>Shivam Seamar</strong> <span>© 2026 All Rights Reserved.</span> </div>
+<footer>PDF Flow — a local-only PDF workbench.</footer>
+  <div class="footer-bottom"> <span>PDFVault — Your PDF. Your Control.</span> <span>Made with ❤️ for simple PDF editing.</span> </div> </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
