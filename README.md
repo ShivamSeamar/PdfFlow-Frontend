@@ -1,78 +1,86 @@
 # PdfFlow
 
-A full MERN-stack PDF toolkit — edit, compress, split, merge, convert, protect and organize
-PDFs, in a dark/orange themed, fully responsive UI.
+PdfFlow is a responsive PDF workspace for editing, organizing, converting, and managing documents from one place.
 
-## Structure
+<p align="center">
+  <a href="https://pdfs-flow.netlify.app/"><strong>Open the live demo</strong></a>
+</p>
 
-```
-pdfflow/
-  frontend/   React + Vite + Tailwind (all the UI, client-side PDF logic)
-  backend/    Express + MongoDB (only for the jobs that truly need a server)
-```
+## Preview
 
-## What runs where, and why
+<p align="center">
+  <img src="backend/docs/images/pdfflow-home.png" alt="PdfFlow homepage" width="49%" />
+  <img src="backend/docs/images/pdfflow-tools.png" alt="PdfFlow PDF tools" width="49%" />
+</p>
 
-Most tools run **entirely in the browser** (via `pdf-lib`, `pdfjs-dist`, `jspdf`, `xlsx`) —
-nothing is uploaded anywhere:
+## Features
 
-- Edit PDF, Compress PDF, Split PDF, Combine PDF, JPG/JPEG to PDF, Excel to PDF,
-  Organize & Crop PDF
+### Processed in your browser
 
-Three tools call the Express backend because they need capabilities no browser library
-provides:
+- **Edit PDF** — add annotations and make supported text edits.
+- **Compress PDF** — reduce PDF size with quality and target-size options.
+- **Split PDF** — extract selected pages or page ranges.
+- **Combine PDF** — merge documents and arrange their order.
+- **Organize & Crop PDF** — reorder, rotate, remove, and crop pages.
+- **JPG to PDF** — turn JPG or JPEG images into a PDF.
+- **PDF to Image** — export PDF pages as JPG, JPEG, or PNG images.
+- **Word to PDF** and **Excel to PDF** — convert documents and spreadsheets.
 
-- **PDF → Word / PDF → Excel** — real layout reconstruction needs LibreOffice
-  (`soffice --headless --convert-to docx|xlsx`) or a cloud conversion API. See
-  `backend/routes/convert.js` for both integration points.
-- **Protect / Unlock PDF** — standards-compliant PDF encryption is handled with the
-  `qpdf` CLI. See `backend/routes/protect.js`.
+### Require the backend
 
-## Getting started
+- **PDF to Word** and **PDF to Excel** — convert PDFs with LibreOffice.
+- **Protect & Unlock PDF** — apply or remove password protection with qpdf.
+
+Files for browser-based tools stay in the browser. Backend-powered tools send the selected file to the configured PdfFlow API for processing.
+
+## Tech stack
+
+- **Frontend:** React, Vite, Tailwind CSS, React Router
+- **Document tools:** pdf-lib, PDF.js, jsPDF, SheetJS, Mammoth
+- **Backend:** Node.js, Express, MongoDB, Multer
+- **Deployment:** Netlify frontend preview; Express API can be deployed separately
+
+## Run locally
+
+Install Node.js and npm. To use backend-powered features, also install MongoDB, LibreOffice, and qpdf.
 
 ### Frontend
 
-```bash
+```powershell
 cd frontend
 npm install
-npm run dev        # http://localhost:5173
+npm run dev
 ```
+
+Vite starts the frontend at `http://localhost:5173`.
 
 ### Backend
 
-```bash
+In a second terminal:
+
+```powershell
 cd backend
-cp .env.example .env
 npm install
-npm run dev         # http://localhost:5000
+Copy-Item .env.example .env
+npm run dev
 ```
 
-Backend prerequisites for full functionality:
+Set `MONGODB_URI` in `backend/.env` to your MongoDB connection string. MongoDB is required by the current backend routes to record conversion and protection jobs. Install LibreOffice for PDF-to-Word/Excel conversion and qpdf for PDF protection/unlocking. If qpdf is not on `PATH`, set `QPDF_PATH` in `.env` to its executable path.
 
-```bash
-# Ubuntu/Debian
-sudo apt-get install libreoffice qpdf
+The frontend's Vite `/api` proxy is configured in `frontend/vite.config.js`. Point it to `http://localhost:5000` when you want local frontend requests to use the local backend.
 
-# macOS
-brew install --cask libreoffice
-brew install qpdf
+Create a production frontend build with:
+
+```powershell
+cd frontend
+npm run build
 ```
 
-MongoDB is optional — it's only used to log conversion job history
-(`backend/models/Document.js`); the app still works without it, it just won't persist
-job records.
+## Repositories
 
-## Theming
+- **Frontend:** [PdfFlow-Frontend](https://github.com/ShivamSeamar/PdfFlow-Frontend)
+- **Backend:** [PdfFlow](https://github.com/ShivamSeamar/PdfFlow)
 
-Colors live in `frontend/tailwind.config.js` under the `base` (near-black grays) and
-`flame` (orange) palettes — tweak those to adjust the whole theme in one place.
+## License
 
-## Notes on "MS Word–style" PDF editing
-
-The Edit PDF tool lets you click to place text, boxes and highlights directly on a
-rendered preview of each page, then bakes them into the PDF with `pdf-lib`. This covers
-adding/annotating content (the most common "edit a PDF" need). Full re-flowing,
-paragraph-level editing of existing PDF text (like Word does with .docx) isn't something
-any browser or server library does reliably, because PDFs don't store text as editable
-paragraphs — only positioned glyphs. If you need that, the practical path is
-PDF → Word (already wired up), edit in Word, then Word → PDF back.
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
